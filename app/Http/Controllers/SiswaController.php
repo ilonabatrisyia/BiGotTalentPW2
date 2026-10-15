@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -24,24 +25,29 @@ class SiswaController extends Controller
 
     public function daftarLomba(Request $request)
     {
+        // 1. Validasi input wajib diisi
         $request->validate([
-            'lomba_id' => 'required'
+            'lomba_id' => 'required|exists:lombas,id',
+            'kelas' => 'required|string|max:50',
+            'no_wa' => 'required|string|max:20',
         ]);
 
-        // Validasi: Cegah siswa mendaftar lomba yang sama lebih dari satu kali
+        // 2. Validasi: Cegah daftar lomba yang sama ganda
         $sudahDaftar = Pendaftaran::where('user_id', Auth::id())
-                                  ->where('lomba_id', $request->lomba_id)
-                                  ->exists();
+                                   ->where('lomba_id', $request->lomba_id)
+                                   ->exists();
 
         if ($sudahDaftar) {
             return back()->with('error', 'Gagal: Anda sudah terdaftar di mata lomba ini.');
         }
 
-        // Proses simpan pendaftaran dengan status awal
+        // 3. Simpan data lengkap ke database
         Pendaftaran::create([
             'user_id' => Auth::id(),
             'lomba_id' => $request->lomba_id,
-            'status' => 'Dokumen dalam Tinjauan' // Status default sesuai soal
+            'kelas' => $request->kelas,
+            'no_wa' => $request->no_wa,
+            'status' => 'Dokumen dalam Tinjauan' 
         ]);
         
         return back()->with('success', 'Berhasil mendaftar! Silakan pantau status Anda di bawah.');

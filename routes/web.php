@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth; // Untuk mengecek user yang login
-use App\Http\Controllers\AdminController; // Memanggil Controller Admin
-use App\Http\Controllers\SiswaController; // Memanggil Controller Siswa
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\ProfileController;
 
 // 1. Rute Halaman Depan (Welcome Page)
@@ -29,10 +29,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/kelola-siswa', [AdminController::class, 'kelolaSiswa'])->name('admin.siswa');
     Route::get('/admin/kelola-status', [AdminController::class, 'kelolaStatus'])->name('admin.status');
 
-    // --- PROSES DATA (Tetap seperti sebelumnya) ---
+    // --- PROSES DATA (CRUD LOMBA & STATUS) ---
     Route::post('/admin/lomba', [AdminController::class, 'storeLomba'])->name('admin.lomba.store');
+    Route::get('/admin/lomba/{id}/edit', [AdminController::class, 'editLomba'])->name('admin.lomba.edit');
+    Route::put('/admin/lomba/{id}', [AdminController::class, 'updateLomba'])->name('admin.lomba.update');
+    Route::delete('/admin/lomba/{id}', [AdminController::class, 'destroyLomba'])->name('admin.lomba.destroy');
     Route::post('/admin/pendaftaran/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.status.update');
     
+    // --- PROSES DATA (CRUD AKUN SISWA) ---
     Route::post('/admin/siswa', [AdminController::class, 'storeSiswa'])->name('admin.siswa.store');
     Route::get('/admin/siswa/{id}/edit', [AdminController::class, 'editSiswa'])->name('admin.siswa.edit');
     Route::put('/admin/siswa/{id}', [AdminController::class, 'updateSiswa'])->name('admin.siswa.update');
@@ -48,8 +52,7 @@ Route::middleware(['auth', 'role:siswa'])->group(function () {
     Route::post('/siswa/daftar', [SiswaController::class, 'daftarLomba'])->name('siswa.daftar');
 });
 
-// Bawaan Breeze untuk rute Login, Register, Logout, dll (JANGAN DIHAPUS)
-// Rute untuk mengedit Profil (Bawaan Breeze)
+// Bawaan Breeze untuk rute Profil, Login, Register, dll
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

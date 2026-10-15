@@ -1,38 +1,92 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Lomba;
-use App\Models\Pendaftaran;
+use App\Models\Lomba;          
+use App\Models\Pendaftaran;     
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    public function index()
+    // --- BAGIAN TAMPILAN HALAMAN (MENUS) ---
+
+    // 1. Halaman Welcome Admin (Kosong/Ringkasan)
+    public function index() 
     {
-        $lombas = Lomba::all();
-        $pendaftarans = Pendaftaran::with(['user', 'lomba'])->get();
-        
-        // Ambil semua data user yang berstatus 'siswa'
-        $siswas = User::where('role', 'siswa')->get();
-        
-        return view('admin.dashboard', compact('lombas', 'pendaftarans', 'siswas'));
+        return view('admin.dashboard'); 
     }
 
-    // --- (Fungsi Kelola Lomba & Status Tetap Ada) ---
-    public function storeLomba(Request $request) {
+    // 2. Halaman Khusus Lomba
+    public function kelolaLomba() 
+    {
+        $lombas = Lomba::all();
+        return view('admin.kelola_lomba', compact('lombas'));
+    }
+
+    // 3. Halaman Khusus Siswa
+    public function kelolaSiswa() 
+    {
+        // Ambil semua data user yang berstatus 'siswa'
+        $siswas = User::where('role', 'siswa')->get();
+        return view('admin.kelola_siswa', compact('siswas'));
+    }
+
+    // 4. Halaman Khusus Status
+    public function kelolaStatus() 
+    {
+        $pendaftarans = Pendaftaran::with(['user', 'lomba'])->get();
+        return view('admin.kelola_status', compact('pendaftarans'));
+    }
+
+
+    // --- BAGIAN PROSES DATA (CRUD LOMBA & STATUS) ---
+
+    // Menyimpan Data Mata Lomba Baru (Create)
+    public function storeLomba(Request $request)
+    {
+        // Simpan semua inputan dari form web ke tabel lomba
         Lomba::create($request->all());
+        
+        // Kembalikan admin ke halaman sebelumnya dengan pesan sukses
         return back()->with('success', 'Mata Lomba berhasil ditambahkan!');
     }
 
-    public function updateStatus(Request $request, $id) {
+    // Tampilkan Halaman EDIT Lomba
+    public function editLomba($id)
+    {
+        $lomba = Lomba::findOrFail($id);
+        return view('admin.edit_lomba', compact('lomba'));
+    }
+
+    // UPDATE (Simpan Perubahan Lomba)
+    public function updateLomba(Request $request, $id)
+    {
+        $lomba = Lomba::findOrFail($id);
+        $lomba->update($request->all());
+        
+        return redirect()->route('admin.lomba')->with('success', 'Mata lomba berhasil diperbarui!');
+    }
+
+    // DELETE (Hapus Lomba)
+    public function destroyLomba($id)
+    {
+        Lomba::findOrFail($id)->delete();
+        return back()->with('success', 'Mata lomba berhasil dihapus!');
+    }
+
+    // Mengubah Status Pendaftaran Siswa (Update)
+    public function updateStatus(Request $request, $id)
+    {
         $pendaftaran = Pendaftaran::findOrFail($id);
         $pendaftaran->update(['status' => $request->status]);
+        
         return back()->with('success', 'Status pendaftaran berhasil diubah!');
     }
 
-    // --- TAMBAHAN BARU: LOGIKA CRUD SISWA ---
+
+    // --- BAGIAN PROSES DATA (CRUD AKUN SISWA) ---
 
     // CREATE (Tambah Siswa)
     public function storeSiswa(Request $request)
@@ -46,14 +100,14 @@ class AdminController extends Controller
         return back()->with('success', 'Akun siswa berhasil dibuat!');
     }
 
-    // Tampilkan Halaman EDIT
+    // Tampilkan Halaman EDIT Siswa
     public function editSiswa($id)
     {
         $siswa = User::findOrFail($id);
         return view('admin.edit_siswa', compact('siswa'));
     }
 
-    // UPDATE (Simpan Perubahan)
+    // UPDATE (Simpan Perubahan Siswa)
     public function updateSiswa(Request $request, $id)
     {
         $siswa = User::findOrFail($id);
@@ -67,7 +121,8 @@ class AdminController extends Controller
             $siswa->update(['password' => Hash::make($request->password)]);
         }
 
-        return redirect()->route('admin.dashboard')->with('success', 'Data siswa berhasil diperbarui!');
+        // Redirect kembali ke halaman menu Kelola Siswa
+        return redirect()->route('admin.siswa')->with('success', 'Data siswa berhasil diperbarui!');
     }
 
     // DELETE (Hapus Siswa)
@@ -77,4 +132,3 @@ class AdminController extends Controller
         return back()->with('success', 'Akun siswa berhasil dihapus!');
     }
 }
-

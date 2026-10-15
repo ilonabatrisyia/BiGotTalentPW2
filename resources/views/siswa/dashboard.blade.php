@@ -22,22 +22,41 @@
                 </div>
             @endif
 
-            <!-- KOTAK 1: Form Pendaftaran -->
+             <!-- KOTAK 1: Form Pendaftaran -->
             <div class="p-6 bg-white shadow sm:rounded-lg border-t-4 border-blue-600">
-                <h3 class="text-lg font-bold mb-4 text-gray-800">Pendaftaran Lomba</h3>
-                <form action="{{ route('siswa.daftar') }}" method="POST" class="flex flex-col sm:flex-row gap-4 items-end">
+                <h3 class="text-lg font-bold mb-4 text-gray-800">Formulir Pendaftaran Lomba</h3>
+                
+                <form action="{{ route('siswa.daftar') }}" method="POST">
                     @csrf
-                    <div class="w-full sm:w-2/3">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Kategori Lomba:</label>
-                        <select name="lomba_id" class="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm w-full" required>
-                            <option value="">-- Pilih Lomba --</option>
-                            @foreach($lombas as $lomba)
-                                <option value="{{ $lomba->id }}">{{ $lomba->nama_lomba }}</option>
-                            @endforeach
-                        </select>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <!-- Pilihan Lomba -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Kategori Lomba *</label>
+                            <select name="lomba_id" class="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm w-full bg-gray-50" required>
+                                <option value="">-- Silakan Pilih --</option>
+                                @foreach($lombas as $lomba)
+                                    <option value="{{ $lomba->id }}">{{ $lomba->nama_lomba }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Input Kelas -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Asal Kelas *</label>
+                            <input type="text" name="kelas" placeholder="Contoh: X TKJ" class="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm w-full" required>
+                        </div>
+
+                        <!-- Input WhatsApp -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">No. WhatsApp Aktif *</label>
+                            <input type="number" name="no_wa" placeholder="Contoh: 081234567890" class="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm w-full" required>
+                            <p class="text-xs text-gray-500 mt-1">Pastikan nomor aktif untuk undangan grup koordinasi.</p>
+                        </div>
                     </div>
-                    <button type="submit" class="w-full sm:w-1/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md shadow transition duration-150">
-                        Daftar Lomba
+
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md shadow transition duration-150 mt-2">
+                        Kirim Formulir Pendaftaran
                     </button>
                 </form>
             </div>
@@ -54,9 +73,10 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         @foreach($riwayat as $item)
                             <div class="border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition relative overflow-hidden">
-                                <!-- Aksen warna di kiri kartu -->
+                                  <!-- Aksen warna di kiri kartu -->
                                 <div class="absolute left-0 top-0 bottom-0 w-1 
-                                    @if(item->status=='DokumendalamTinjauan')bg-yellow-400@elseif(item->status == 'Jadwal Briefing') bg-blue-500
+                                    @if(
+item->status=='DokumendalamTinjauan')bg-yellow-400@elseif(item->status == 'Jadwal Briefing') bg-blue-500
                                     @elseif(item->status=='TahapPelatihan')bg-purple-500@elseif(item->status == 'Final') bg-green-500
                                     @else bg-gray-400 @endif
                                 "></div>
